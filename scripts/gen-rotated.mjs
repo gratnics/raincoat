@@ -1,7 +1,7 @@
 // 斜めに傾けたアイコンを、回転前の座標から計算して生成する（SVG に transform は使えないため）。
 // 角度・中心・大きさを変えるときは下の icons の設定を書き換えて `node scripts/gen-rotated.mjs` を実行する。
 //
-// 要素は次のどちらかで書く（fill を付けると塗りになる。線の太さはどれも 24 グリッドで 2）:
+// 要素は次のどちらかで書く（fill を付けると塗りになる。線の太さは 24 グリッドで 2、strokeWidth で要素ごとに変えられる）:
 //   { d: [...コマンド] }       パス。コマンドは絶対座標: ['M', x, y] ['L', x, y] ['Q', x1, y1, x, y]
 //                              ['C', x1, y1, x2, y2, x, y] ['A', r, large, sweep, x, y]（円弧のみ） ['Z']
 //   { circle: [cx, cy, r] }    円
@@ -24,47 +24,68 @@ const UMBRELLA_HANDLE = [['M', 24, 23.5], ['L', 24, 38], ['L', 24, 41], ['A', 5.
 const UMBRELLA_TIP = [24, 3.4, 1.8];
 const UMBRELLA = { angle: 36, pivot: [24, 26], fit: 20, center: true }; // ロゴと同じ rotate(36 24 26)
 
+// 縦向き（頭が上・針が下）の押しピン
+const PIN_HEAD = [['M', 9.5, 3.5], ['L', 14.5, 3.5], ['L', 14.5, 9], ['L', 17.5, 13.5], ['L', 6.5, 13.5], ['L', 9.5, 9], ['Z']];
+const PIN_NEEDLE = [['M', 12, 13.5], ['L', 12, 20.5]];
+const PIN = {
+  angle: 45, // 時計回り（度）。頭が右上・針が左下
+  pivot: [12, 12], // 回転の中心
+  scale: 1.15, // pivot を中心にした倍率
+  center: true, // 回転後の外接矩形の中心を (12, 12) に合わせる
+};
+
+// 縦向き（頭が上・柄が下）のレンチ。頭は半径4.5の円に幅4・深さ3.5の口、柄は幅4で下端を丸める。
+const WRENCH = [
+  ['M', 10, 2.97],
+  ['L', 10, 6.5],
+  ['L', 14, 6.5],
+  ['L', 14, 2.97],
+  ['A', 4.5, 0, 1, 14, 11.03],
+  ['L', 14, 19],
+  ['A', 2, 0, 1, 10, 19],
+  ['L', 10, 11.03],
+  ['A', 4.5, 0, 1, 10, 2.97],
+  ['Z'],
+];
+const TOOL = { angle: 45, pivot: [12, 12], fit: 18, center: true }; // 時計回り。頭が右上・柄が左下
+
 const icons = [
   {
     file: 'icons/line/pin.svg',
-    // 縦向き（頭が上・針が下）の押しピン
-    elements: [
-      { d: [['M', 9.5, 3.5], ['L', 14.5, 3.5], ['L', 14.5, 9], ['L', 17.5, 13.5], ['L', 6.5, 13.5], ['L', 9.5, 9], ['Z']] },
-      { d: [['M', 12, 13.5], ['L', 12, 20.5]] },
-    ],
-    angle: 45, // 時計回り（度）。頭が右上・針が左下
-    pivot: [12, 12], // 回転の中心
-    scale: 1.15, // pivot を中心にした倍率
-    center: true, // 回転後の外接矩形の中心を (12, 12) に合わせる
+    elements: [{ d: PIN_HEAD }, { d: PIN_NEEDLE }],
+    ...PIN,
+  },
+  {
+    // 塗りつぶし版: 頭を塗り（塗り＋太さ2の線で外形は線画と同じ）、針は太さ3の線。
+    file: 'icons/fill/pin.svg',
+    elements: [{ d: PIN_HEAD, fill: true }, { d: PIN_NEEDLE, strokeWidth: 3 }],
+    ...PIN,
   },
   {
     file: 'icons/line/tool.svg',
-    // 縦向き（頭が上・柄が下）のレンチ。頭は半径4.5の円に幅4・深さ3.5の口、柄は幅4で下端を丸める。
-    elements: [
-      {
-        d: [
-          ['M', 10, 2.97],
-          ['L', 10, 6.5],
-          ['L', 14, 6.5],
-          ['L', 14, 2.97],
-          ['A', 4.5, 0, 1, 14, 11.03],
-          ['L', 14, 19],
-          ['A', 2, 0, 1, 10, 19],
-          ['L', 10, 11.03],
-          ['A', 4.5, 0, 1, 10, 2.97],
-          ['Z'],
-        ],
-      },
-    ],
-    angle: 45, // 時計回り。頭が右上・柄が左下
-    pivot: [12, 12],
-    fit: 18,
-    center: true,
+    elements: [{ d: WRENCH }],
+    ...TOOL,
   },
   {
-    // ロゴと同じく布と先端を塗り、柄だけ線にする（線画版でも塗りを使う例外）。
-    // 布と先端にも線（太さ2）を重ねて、輪郭の丸みを他のアイコンと揃える。骨は塗りで隠れるので描かない。
+    // 塗りつぶし版: レンチ全体を塗る（塗り＋太さ2の線で外形と口の切り欠きは線画と同じ）。
+    file: 'icons/fill/tool.svg',
+    elements: [{ d: WRENCH, fill: true }],
+    ...TOOL,
+  },
+  {
+    // 線画版: 布は輪郭線、先端の円は線だと点に潰れるので塗る。
     file: 'icons/line/umbrella.svg',
+    elements: [
+      { d: UMBRELLA_CANOPY },
+      { circle: UMBRELLA_TIP, fill: true },
+      { d: UMBRELLA_HANDLE },
+    ],
+    ...UMBRELLA,
+  },
+  {
+    // 塗りつぶし版: ロゴと同じく布と先端を塗り、柄だけ線にする。
+    // 布と先端にも線（太さ2）を重ねて、輪郭の丸みを他のアイコンと揃える。骨は塗りで隠れるので描かない。
+    file: 'icons/fill/umbrella.svg',
     elements: [
       { d: UMBRELLA_CANOPY, fill: true },
       { circle: UMBRELLA_TIP, fill: true },
@@ -155,7 +176,7 @@ const f = (v) => String(Math.round(v * 100) / 100);
 const toD = (d) =>
   d.map(([cmd, ...v]) => (cmd === 'A' ? `A${f(v[0])} ${f(v[0])} 0 ${v[1]} ${v[2]} ${f(v[3])} ${f(v[4])}` : cmd + v.map(f).join(' '))).join('');
 const toSVG = (el) => {
-  const fill = el.fill ? ' fill="currentColor"' : '';
+  const fill = (el.fill ? ' fill="currentColor"' : '') + (el.strokeWidth ? ` stroke-width="${el.strokeWidth}"` : '');
   if (el.circle) return `<circle cx="${f(el.circle[0])}" cy="${f(el.circle[1])}" r="${f(el.circle[2])}"${fill}/>`;
   return `<path d="${toD(el.d)}"${fill}/>`;
 };

@@ -34,15 +34,29 @@ function cells(name, weight) {
   return sizes.map((s) => `<td>${sized(svg, s)}</td>`).join('');
 }
 
+// 半透明の色で描く列。要素どうしが重なる部分だけ濃くならないかを確認する。
+const alphaSizes = [18, 48];
+
+function alphaCells(name) {
+  return weights
+    .map((w) => {
+      const svg = sets[w].get(name);
+      if (!svg) return alphaSizes.map(() => '<td class="none">–</td>').join('');
+      return alphaSizes.map((s) => `<td class="alpha">${sized(svg, s)}</td>`).join('');
+    })
+    .join('');
+}
+
 function table(theme) {
-  const head = weights
-    .map((w) => sizes.map((s) => `<th>${w}<br>${s}</th>`).join(''))
-    .join('<th class="sep"></th>');
-  const span = sizes.length * weights.length + 2;
+  const head =
+    weights.map((w) => sizes.map((s) => `<th>${w}<br>${s}</th>`).join('')).join('<th class="sep"></th>') +
+    '<th class="sep"></th>' +
+    weights.map((w) => alphaSizes.map((s) => `<th>${w} α<br>${s}</th>`).join('')).join('');
+  const span = (sizes.length + alphaSizes.length) * weights.length + 3;
   const bodies = batches
     .map(([label, list]) => {
       const rows = list
-        .map((n) => `<tr><th class="name">${n}</th>${cells(n, 'line')}<td class="sep"></td>${cells(n, 'fill')}</tr>`)
+        .map((n) => `<tr><th class="name">${n}</th>${cells(n, 'line')}<td class="sep"></td>${cells(n, 'fill')}<td class="sep"></td>${alphaCells(n)}</tr>`)
         .join('\n');
       return `<tbody><tr class="batch"><th colspan="${span}">${label}（${list.length}）</th></tr>${rows}</tbody>`;
     })
@@ -68,6 +82,8 @@ const html = `<!doctype html>
   tbody tr + tr { border-top: 1px solid color-mix(in srgb, currentColor 10%, transparent); }
   td.sep, th.sep { width: 16px; border-left: 1px solid color-mix(in srgb, currentColor 15%, transparent); }
   td.none { opacity: .25; }
+  section.light td.alpha { color: rgba(20, 20, 20, 0.35); }
+  section.dark td.alpha { color: rgba(228, 232, 237, 0.35); }
   tr.batch th { text-align: left; font-size: 12px; font-weight: 600; padding-top: 20px;
     border-bottom: 2px solid color-mix(in srgb, currentColor 30%, transparent); }
   svg { display: block; margin: auto; }
