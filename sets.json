@@ -1,0 +1,7 @@
+{
+  "1": ["check", "close", "user", "add", "chevron-down", "trash", "download", "arrow-left", "copy", "search", "list-check", "chevron-right", "file-upload", "pencil", "more-vertical"],
+  "2": ["chevron-up", "chevron-left", "arrow-down", "translate", "eye", "refresh", "alert", "globe", "folder", "pin", "stop", "mic", "volume", "sparkles", "chat", "umbrella"],
+  "3": ["cloud-upload", "monitor", "document", "save", "git-branch", "folder-open", "link", "lock", "unlock", "rotate-ccw", "send", "smartphone", "terminal"],
+  "4": ["code", "diff", "arrow-up", "add-circle", "sidebar", "settings", "user-circle", "history", "history-ccw", "skill", "sun", "moon"],
+  "5": ["check-circle", "compress", "database", "file-new", "tool", "thinking", "question", "align-left", "circle", "loader", "world", "safety-certificate"]
+}

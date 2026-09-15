@@ -1,0 +1,15 @@
+{
+  "name": "raincoat",
+  "version": "0.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "description": "Raincoat: the icon set for Seirein (line / fill, 24x24, currentColor). Exported as an Iconify JSON package.",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "preview": "node scripts/preview.mjs"
+  },
+  "devDependencies": {
+    "@iconify/tools": "^4.1.2"
+  }
+}
